@@ -39,6 +39,7 @@ DJANGO_APPS = [
 ]
 
 PROJECT_APPS = [
+    'lists.apps.ListsConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
