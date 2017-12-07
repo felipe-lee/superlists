@@ -2,3 +2,7 @@
 """
 Lists views
 """
+
+
+def home_page():
+    pass
