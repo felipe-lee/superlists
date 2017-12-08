@@ -3,6 +3,7 @@
 Lists views
 """
 from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 
 from lists.models import Item
 
@@ -16,8 +17,8 @@ def home_page(request):
 
 def new_list(request):
     Item.objects.create(text=request.POST['item_text'])
-    
-    return redirect('/lists/the-only-list-in-the-world/')
+
+    return redirect(reverse_lazy('view_list'))
 
 
 def view_list(request):
