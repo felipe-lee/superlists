@@ -19,13 +19,19 @@ def new_list(request):
     list_ = List.objects.create()
     Item.objects.create(text=request.POST['item_text'], list=list_)
 
-    return redirect(reverse_lazy('view_list'))
+    return redirect(reverse_lazy('view_list', kwargs={'list_id': list_.id}))
 
 
-def view_list(request):
+def view_list(request, list_id):
     """
     View to see a single list
     """
-    items = Item.objects.all()
+    list_ = List.objects.get(id=list_id)
+    return render(request, 'lists/list.html', {'list': list_})
 
-    return render(request, 'lists/list.html', {'items': items})
+
+def add_item(request, list_id):
+    list_ = List.objects.get(id=list_id)
+    Item.objects.create(text=request.POST['item_text'], list=list_)
+    
+    return redirect(reverse_lazy('view_list', kwargs={'list_id': list_.id}))
