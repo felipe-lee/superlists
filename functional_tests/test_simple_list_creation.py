@@ -30,8 +30,7 @@ class NewVisitorTest(LiveServerTestCase):
         """
         Setup browser for tests
         """
-        # self.browser = webdriver.Firefox()
-        self.browser = webdriver.Chrome()
+        self.browser = get_webdriver()
     
     def tearDown(self):
         """
@@ -89,22 +88,22 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertEqual(inputbox.get_attribute('placeholder'), 'Enter a to-do item')
         
         # She types "Buy cat toys" into a text box (She has multiple cats that love to play)
-        inputbox.send_keys('Buy cat toys')
+        inputbox.send_keys(E_ITEM_1)
         
         # When she hits enter, the page updates, and now the page lists
         # "1: Buy cat toys" as an item in a to-do list
         inputbox.send_keys(Keys.ENTER)
 
-        self.wait_for_row_in_list_table('1: Buy cat toys')
+        self.wait_for_row_in_list_table(f'1: {E_ITEM_1}')
         
         # There is still a text box inviting her to add another item. She enters "Surprise cats with toys"
         inputbox = self.browser.find_element_by_id('id_new_item')
-        inputbox.send_keys('Surprise cats with toys')
+        inputbox.send_keys(E_ITEM_2)
         inputbox.send_keys(Keys.ENTER)
 
         # The page updates again, and now shows both items on her list
-        self.wait_for_row_in_list_table('1: Buy cat toys')
-        self.wait_for_row_in_list_table('2: Surprise cats with toys')
+        self.wait_for_row_in_list_table(f'1: {E_ITEM_1}')
+        self.wait_for_row_in_list_table(f'2: {E_ITEM_2}')
 
         # Satisfied, she goes to sleep.
 
