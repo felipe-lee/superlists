@@ -35,10 +35,7 @@ class NewVisitorTest(unittest.TestCase):
         
         # She is invited to enter a to-do item straight away
         inputbox = self.browser.find_element_by_id('id_new_item')
-        self.assertEqual(
-            inputbox.get_attribute('placeholder'),
-            'Enter a to-do item'
-        )
+        self.assertEqual(inputbox.get_attribute('placeholder'), 'Enter a to-do item')
         
         # She types "Buy cat toys" into a text box (She has multiple cats that love to play)
         inputbox.send_keys('Buy cat toys')
@@ -50,16 +47,24 @@ class NewVisitorTest(unittest.TestCase):
 
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertTrue(
-            any(row.text == '1: Buy cat toys' for row in rows),
-            "New to-do item did not appear in table"
-        )
-        # There is still a text box inviting her to add another item. She enters "Surprise cats with toys"
-        self.fail('Finish the test!')
-        # The page updates again, and now shows both items on her list
+        self.assertIn('1: Buy cat toys', [row.text for row in rows])
         
-        # Edith wonders whether the site will remember her list. Then she sees that teh site has generated a unique url
+        # There is still a text box inviting her to add another item. She enters "Surprise cats with toys"
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Surprise cats with toys')
+        inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
+
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn('1: Buy cat toys', [row.text for row in rows])
+        self.assertIn('2: Surprise cats with toys', [row.text for row in rows])
+
+        # The page updates again, and now shows both items on her list
+
+        # Emily wonders whether the site will remember her list. Then she sees that teh site has generated a unique url
         # for her -- there is some explanatory text to that effect.
+        self.fail('Finish the test!')
         
         # She visits that URL - her to-do list is still there.
         
