@@ -6,6 +6,7 @@ import time
 
 from django.test import LiveServerTestCase
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.common.keys import Keys
 
 from functional_tests.helpers import get_webdriver
 
@@ -25,6 +26,20 @@ class FunctionalTest(LiveServerTestCase):
         Clean up after tests.
         """
         self.browser.quit()
+
+    def set_inputbox(self):
+        """
+        Gets inputbox. Seems almost pointless but useful to stop repeating name of input box.
+        """
+        self.inputbox = self.browser.find_element_by_id('id_new_item')
+
+    def enter_input(self, text_to_input):
+        """
+        Shortcut to enter input in inputbox
+        :param text_to_input: Text to input in self.inputbox
+        """
+        self.inputbox.send_keys(text_to_input)
+        self.inputbox.send_keys(Keys.ENTER)
     
     def wait_for_row_in_list_table(self, row_text):
         """
