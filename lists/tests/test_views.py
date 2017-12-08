@@ -5,7 +5,7 @@ Base tests for lists app
 from django.test import TestCase
 from django.urls import resolve, reverse_lazy
 
-from lists.models import Item
+from lists.models import Item, List
 from lists.views import home_page
 
 
@@ -46,11 +46,12 @@ class ListViewTest(TestCase):
         self.assertTemplateUsed(response, 'lists/list.html')
 
     def test_displays_all_list_items(self):
+        list_ = List.objects.create()
         text_1 = 'itemy 1'
         text_2 = 'itemy 2'
-
-        Item.objects.create(text=text_1)
-        Item.objects.create(text=text_2)
+    
+        Item.objects.create(text=text_1, list=list_)
+        Item.objects.create(text=text_2, list=list_)
 
         response = self.client.get(reverse_lazy('view_list'))
 
