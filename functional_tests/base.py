@@ -6,7 +6,10 @@ import time
 
 from django.test import LiveServerTestCase
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
+
+MAX_TIME = 10
 
 
 class NewVisitorTest(LiveServerTestCase):
@@ -24,11 +27,42 @@ class NewVisitorTest(LiveServerTestCase):
         """
         self.browser.quit()
 
-    def check_for_row_in_list_table(self, row_text):
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_elements_by_tag_name('tr')
-        self.assertIn(row_text, [row.text for row in rows])
+    def wait_for_row_in_list_table(self, row_text):
+        """
+        Waits for table to appear on page and checks if row_text is in any row.
+        :param row_text: Text to search for in row
+        """
+        start_time = time.time()
     
+        def check_time(exc):
+            """
+            Checks if we should wait longer or not
+            :return:
+            """
+            if time.time() - start_time > MAX_TIME:
+                raise exc
+        
+            time.sleep(0.5)
+    
+        while True:
+            try:
+                table = self.browser.find_element_by_id('id_list_table')
+            except WebDriverException as e:
+                check_time(e)
+            
+                continue
+            else:
+                rows = table.find_elements_by_tag_name('tr')
+        
+            try:
+                self.assertIn(row_text, [row.text for row in rows])
+            except AssertionError as e:
+                check_time(e)
+            
+                continue
+            else:
+                break
+
     def test_can_start_a_list_and_retrieve_it_later(self):
         # Emily has heard about a cool new online to-do app. She goes to check out its homepage
         self.browser.get(self.live_server_url)
@@ -48,17 +82,16 @@ class NewVisitorTest(LiveServerTestCase):
         # When she hits enter, the page updates, and now the page lists
         # "1: Buy cat toys" as an item in a to-do list
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
-        self.check_for_row_in_list_table('1: Buy cat toys')
+
+        self.wait_for_row_in_list_table('1: Buy cat toys')
         
         # There is still a text box inviting her to add another item. She enters "Surprise cats with toys"
         inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send_keys('Surprise cats with toys')
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
 
-        self.check_for_row_in_list_table('1: Buy cat toys')
-        self.check_for_row_in_list_table('2: Surprise cats with toys')
+        self.wait_for_row_in_list_table('1: Buy cat toys')
+        self.wait_for_row_in_list_table('2: Surprise cats with toys')
 
         # The page updates again, and now shows both items on her list
 
