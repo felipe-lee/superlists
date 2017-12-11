@@ -65,6 +65,7 @@ class NewVisitorTest(FunctionalTest):
         # Now a new user, Felipe, comes along to teh site.
     
         # # We use a new browser session to make sure that no information of Emily's is coming through from cookies,
+        self.browser.refresh()
         self.browser.quit()
     
         self.browser = get_webdriver()

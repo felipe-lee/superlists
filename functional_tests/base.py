@@ -25,6 +25,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         """
         Clean up after tests.
         """
+        self.browser.refresh()
         self.browser.quit()
 
     def set_inputbox(self):
