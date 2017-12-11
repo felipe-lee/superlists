@@ -4,7 +4,7 @@ Base Functional Test
 """
 import time
 
-from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
 
@@ -13,7 +13,7 @@ from functional_tests.helpers import get_webdriver
 MAX_TIME = 10
 
 
-class FunctionalTest(LiveServerTestCase):
+class FunctionalTest(StaticLiveServerTestCase):
     
     def setUp(self):
         """
