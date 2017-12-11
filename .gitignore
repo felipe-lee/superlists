@@ -147,3 +147,4 @@ venv.bak/
 .mypy_cache/
 .idea/
 /db.sqlite3
+/static
