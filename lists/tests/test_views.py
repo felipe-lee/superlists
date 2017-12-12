@@ -4,6 +4,7 @@ Base tests for lists app
 """
 from django.test import TestCase
 from django.urls import reverse_lazy
+from django.utils.html import escape
 
 from lists.models import Item, List
 
@@ -33,6 +34,22 @@ class NewListTest(TestCase):
         new_list = List.objects.first()
     
         self.assertRedirects(response, reverse_lazy('lists:view_list', kwargs={'list_id': new_list.id}))
+
+    def test_validation_errors_are_sent_back_to_home_page_template(self):
+        response = self.client.post(reverse_lazy('lists:new_list'), data={'item_text': ''})
+    
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'lists/home.html')
+    
+        expected_error = escape("You can't have an empty list item")
+    
+        self.assertContains(response, expected_error)
+
+    def test_invalid_list_items_arent_saved(self):
+        self.client.post(reverse_lazy('lists:new_list'), data={'item_text': ''})
+    
+        self.assertEqual(List.objects.count(), 0)
+        self.assertEqual(Item.objects.count(), 0)
 
 
 class ListViewTest(TestCase):
