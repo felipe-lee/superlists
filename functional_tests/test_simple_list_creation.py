@@ -39,7 +39,6 @@ class NewVisitorTest(FunctionalTest):
         self.wait_for_row_in_list_table(f'1: {E_ITEM_1}')
         
         # There is still a text box inviting her to add another item. She enters "Surprise cats with toys"
-        self.inputbox = self.browser.find_element_by_id('id_new_item')
         self.enter_input(E_ITEM_2)
         
         # The page updates again, and now shows both items on her list
@@ -51,8 +50,6 @@ class NewVisitorTest(FunctionalTest):
     def test_multiple_users_can_start_lists_at_different_urls(self):
         # Emily starts a new to-do list
         self.browser.get(self.live_server_url)
-
-        self.inputbox = self.browser.find_element_by_id('id_new_item')
 
         self.enter_input(E_ITEM_1)
     
@@ -79,8 +76,6 @@ class NewVisitorTest(FunctionalTest):
         self.assertNotIn(E_ITEM_2, page_text)
     
         # Felipe starts a new list by entering a new item. He is into techy stuff...
-        self.inputbox = self.browser.find_element_by_id('id_new_item')
-
         self.enter_input(F_ITEM_1)
     
         self.wait_for_row_in_list_table(f'1: {F_ITEM_1}')
