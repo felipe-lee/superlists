@@ -42,9 +42,18 @@ def view_list(request, list_id):
     :param list_id: ID of list to view.
     """
     list_ = List.objects.get(id=list_id)
+    context = {'list': list_}
 
     if request.method == 'POST':
-        Item.objects.create(text=request.POST['item_text'], list=list_)
-        return redirect(reverse_lazy('lists:view_list', kwargs={'list_id': list_.id}))
+        item = Item(text=request.POST['item_text'], list=list_)
     
-    return render(request, 'lists/list.html', {'list': list_})
+        try:
+            item.full_clean()
+        except ValidationError:
+            context['error'] = "You can't have an empty list item"
+        else:
+            item.save()
+        
+            return redirect(reverse_lazy('lists:view_list', kwargs={'list_id': list_.id}))
+
+    return render(request, 'lists/list.html', context)

@@ -112,3 +112,16 @@ class ListViewTest(TestCase):
                                     data={'item_text': text})
 
         self.assertRedirects(response, reverse_lazy('lists:view_list', kwargs={'list_id': correct_list.id}))
+
+    def test_validation_errors_end_up_on_lists_page(self):
+        list_ = List.objects.create()
+    
+        response = self.client.post(reverse_lazy('lists:view_list', kwargs={'list_id': list_.id}),
+                                    data={'item_text': ''})
+    
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'lists/list.html')
+    
+        expected_error = escape("You can't have an empty list item")
+    
+        self.assertContains(response, expected_error)
