@@ -45,6 +45,8 @@ class FunctionalTest(StaticLiveServerTestCase):
         Shortcut to enter input in inputbox
         :param text_to_input: Text to input in self.inputbox
         """
+        self.set_inputbox()
+        
         self.inputbox.send_keys(text_to_input)
         self.inputbox.send_keys(Keys.ENTER)
 
