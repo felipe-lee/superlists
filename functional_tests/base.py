@@ -47,39 +47,37 @@ class FunctionalTest(StaticLiveServerTestCase):
         """
         self.inputbox.send_keys(text_to_input)
         self.inputbox.send_keys(Keys.ENTER)
+
+    @staticmethod
+    def wait_for(fn):
+        """
+        Waits for function to be callable without an Exception
+        :param fn: function to attempt to call
+        :return:
+        """
+        start_time = time.time()
+    
+        while True:
+            try:
+                return fn()
+            except (WebDriverException, AssertionError) as exc:
+                if time.time() - start_time > MAX_TIME:
+                    raise exc
+            
+                time.sleep(0.5)
     
     def wait_for_row_in_list_table(self, row_text):
         """
         Waits for table to appear on page and checks if row_text is in any row.
         :param row_text: Text to search for in row
         """
-        start_time = time.time()
-        
-        def check_time(exc):
+
+        def check_for_row():
             """
-            Checks if we should wait longer or not
-            :return:
+            Checks for text in rows
             """
-            if time.time() - start_time > MAX_TIME:
-                raise exc
-            
-            time.sleep(0.5)
-        
-        while True:
-            try:
-                table = self.browser.find_element_by_id('id_list_table')
-            except WebDriverException as e:
-                check_time(e)
-                
-                continue
-            else:
-                rows = table.find_elements_by_tag_name('tr')
-            
-            try:
-                self.assertIn(row_text, [row.text for row in rows])
-            except AssertionError as e:
-                check_time(e)
-                
-                continue
-            else:
-                break
+            table = self.browser.find_element_by_id('id_list_table')
+            rows = table.find_elements_by_tag_name('tr')
+            self.assertIn(row_text, [row.text for row in rows])
+
+        self.wait_for(lambda: check_for_row())
