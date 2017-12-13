@@ -8,39 +8,27 @@ from django.test import TestCase
 from lists.models import Item, List
 
 
-class ListAndItemModelsTest(TestCase):
+class ListModelTest(TestCase):
     
-    def test_saving_and_retrieving_items(self):
-        list_ = List()
-        list_.save()
+    def test_get_absolute_url(self):
+        list_ = List.objects.create()
+        self.assertEqual(list_.get_absolute_url(), f'/lists/{list_.id}/')
 
-        first_text = 'The first (ever) list item'
-        first_item = Item()
-        first_item.text = first_text
-        first_item.list = list_
-        first_item.save()
 
-        second_text = 'Item the second'
-        second_item = Item()
-        second_item.text = second_text
-        second_item.list = list_
-        second_item.save()
+class ItemModelsTest(TestCase):
     
-        saved_list = List.objects.first()
-    
-        self.assertEqual(saved_list, list_)
+    def test_default_text(self):
+        item = Item()
         
-        saved_items = Item.objects.all()
+        self.assertEqual(item.text, '')
     
-        self.assertEqual(saved_items.count(), 2)
+    def test_item_is_related_to_list(self):
+        list_ = List.objects.create()
+        item = Item()
+        item.list = list_
+        item.save()
         
-        first_saved_item = saved_items[0]
-        second_saved_item = saved_items[1]
-
-        self.assertEqual(first_saved_item.text, first_text)
-        self.assertEqual(first_saved_item.list, list_)
-        self.assertEqual(second_saved_item.text, second_text)
-        self.assertEqual(second_saved_item.list, list_)
+        self.assertIn(item, list_.item_set.all())
 
     def test_cannot_save_empty_list_items(self):
         list_ = List.objects.create()
@@ -48,8 +36,40 @@ class ListAndItemModelsTest(TestCase):
     
         with self.assertRaises(ValidationError):
             item.save()
-            item.full_clean()
 
-    def test_get_absolute_url(self):
+            item.full_clean()
+    
+    def test_duplicate_items_are_invalid(self):
+        text = 'bla'
         list_ = List.objects.create()
-        self.assertEqual(list_.get_absolute_url(), f'/lists/{list_.id}/')
+        Item.objects.create(list=list_, text=text)
+        
+        with self.assertRaises(ValidationError):
+            item = Item(list_, text=text)
+            
+            item.full_clean()
+    
+    def test_CAN_save_same_item_to_different_lists(self):
+        text = 'bla'
+        list_1 = List.objects.create()
+        list_2 = List.objects.create()
+        
+        Item.objects.create(list=list_1, text=text)
+        item = Item(list=list_2, text=text)
+        
+        self.assertIsNone(item.full_clean())  # should not raise exception
+    
+    def test_list_ordering(self):
+        list_1 = List.objects.create()
+        
+        item_1 = Item.objects.create(list=list_1, text='i1')
+        item_2 = Item.objects.create(list=list_1, text='item 2')
+        item_3 = Item.objects.create(list=list_1, text='3')
+        print(f'count: {Item.objects.count()}')
+        self.assertEqual(list(Item.objects.all()), [item_1, item_2, item_3])
+    
+    def test_string_representation(self):
+        text = 'some text'
+        item = Item(text=text)
+        
+        self.assertEqual(str(item), text)
