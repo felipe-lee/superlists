@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse_lazy
 from django.utils.html import escape
 
-from lists.forms import ItemForm
+from lists.forms import EMPTY_ITEM_ERROR, ItemForm
 from lists.models import Item, List
 
 
@@ -41,15 +41,21 @@ class NewListTest(TestCase):
     
         self.assertRedirects(response, reverse_lazy('lists:view_list', kwargs={'list_id': new_list.id}))
 
-    def test_validation_errors_are_sent_back_to_home_page_template(self):
+    def test_for_invalid_input_renders_home_template(self):
         response = self.client.post(reverse_lazy('lists:new_list'), data={'text': ''})
-    
+
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'lists/home.html')
+
+    def test_validation_errors_are_shown_on_home_page(self):
+        response = self.client.post(reverse_lazy('lists:new_list'), data={'text': ''})
     
-        expected_error = escape("You can't have an empty list item")
+        self.assertContains(response, escape(EMPTY_ITEM_ERROR))
+
+    def test_for_invalid_input_passes_form_to_template(self):
+        response = self.client.post(reverse_lazy('lists:new_list'), data={'text': ''})
     
-        self.assertContains(response, expected_error)
+        self.assertIsInstance(response.context['form'], ItemForm)
 
     def test_invalid_list_items_arent_saved(self):
         self.client.post(reverse_lazy('lists:new_list'), data={'text': ''})
@@ -119,15 +125,40 @@ class ListViewTest(TestCase):
 
         self.assertRedirects(response, reverse_lazy('lists:view_list', kwargs={'list_id': correct_list.id}))
 
-    def test_validation_errors_end_up_on_lists_page(self):
+    def post_invalid_input(self):
+        """
+        Posts invalid input to form
+        :return: response to invalid input
+        """
         list_ = List.objects.create()
     
-        response = self.client.post(reverse_lazy('lists:view_list', kwargs={'list_id': list_.id}),
-                                    data={'text': ''})
+        return self.client.post(reverse_lazy('lists:view_list', kwargs={'list_id': list_.id}), data={'text': ''})
+
+    def test_for_invalid_input_nothing_saved_to_db(self):
+        self.post_invalid_input()
     
+        self.assertEqual(Item.objects.count(), 0)
+
+    def test_for_invalid_input_renders_list_template(self):
+        response = self.post_invalid_input()
+        
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'lists/list.html')
+
+    def test_for_invalid_input_passes_form_to_template(self):
+        response = self.post_invalid_input()
     
-        expected_error = escape("You can't have an empty list item")
+        self.assertIsInstance(response.context['form'], ItemForm)
+
+    def test_for_invalid_input_shows_error_on_page(self):
+        response = self.post_invalid_input()
     
-        self.assertContains(response, expected_error)
+        self.assertContains(response, escape(EMPTY_ITEM_ERROR))
+
+    def test_displays_item_form(self):
+        list_ = List.objects.create()
+    
+        response = self.client.get(reverse_lazy('lists:view_list', kwargs={'list_id': list_.id}))
+    
+        self.assertIsInstance(response.context['form'], ItemForm)
+        self.assertContains(response, 'name="text"')

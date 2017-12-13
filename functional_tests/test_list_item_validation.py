@@ -2,6 +2,8 @@
 """
 List item validation FTs
 """
+from selenium.webdriver.common.keys import Keys
+
 from functional_tests.base import FunctionalTest
 
 E_ITEM_1 = 'Buy salmon'
@@ -15,29 +17,35 @@ class ItemValidationTest(FunctionalTest):
         # input box.
         self.browser.get(self.live_server_url)
         self.enter_input('')
+
+        # The browser intercepts the request, and does not load the list page
+        self.wait_for(lambda: self.browser.find_element_by_css_selector('#id_text:invalid'))
+
+        # She starts typing some text for the new item and the error disappears
+        self.set_inputbox()
+        self.inputbox.send_keys(E_ITEM_1)
+
+        self.wait_for(lambda: self.browser.find_element_by_css_selector('#id_text:valid'))
+
+        # And she can submit it successfully
+        self.inputbox.send_keys(Keys.ENTER)
         
-        # The home page refreshes, and there is an error message saying that list items cannot be blank.
-        self.wait_for(lambda: self.assertEqual(
-            self.browser.find_element_by_css_selector('.has-error').text,
-            'You can\'t have an empty list item'
-        ))
-        
-        # She tries again with some text for the item, which now works
-        self.enter_input(E_ITEM_1)
         self.wait_for_row_in_list_table(f'1: {E_ITEM_1}')
         
         # Perversely, she now decides to submit a second blank list item
         self.enter_input('')
-        
-        # She receives a similar warning on the list page
-        self.wait_for(lambda: self.assertEqual(
-            self.browser.find_element_by_css_selector('.has-error').text,
-            'You can\'t have an empty list item'
 
-        ))
+        # Again the browser will not comply
+        self.wait_for_row_in_list_table(f'1: {E_ITEM_1}')
+        self.wait_for(lambda: self.browser.find_element_by_css_selector('#id_text:invalid'))
 
         # And she can correct it filling some text in
-        self.enter_input(E_ITEM_2)
+        self.set_inputbox()
+        self.inputbox.send_keys(E_ITEM_2)
+
+        self.wait_for(lambda: self.browser.find_element_by_css_selector('#id_text:valid'))
+
+        self.inputbox.send_keys(Keys.ENTER)
 
         self.wait_for_row_in_list_table(f'1: {E_ITEM_1}')
         self.wait_for_row_in_list_table(f'2: {E_ITEM_2}')

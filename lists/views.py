@@ -2,7 +2,6 @@
 """
 Lists views
 """
-from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 
 from lists.forms import ItemForm
@@ -20,20 +19,16 @@ def new_list(request):
     """
     View to create a new list and add the first item to the list.
     """
-    list_ = List.objects.create()
-    item = Item(text=request.POST['text'], list=list_)
-    
-    try:
-        item.full_clean()
-    except ValidationError:
-        list_.delete()
-        error = "You can't have an empty list item"
-        
-        return render(request, 'lists/home.html', {'error': error})
-    else:
-        item.save()
+    form = ItemForm(data=request.POST)
 
-    return redirect(list_)
+    if form.is_valid():
+        list_ = List.objects.create()
+    
+        Item.objects.create(text=request.POST['text'], list=list_)
+    
+        return redirect(list_)
+    else:
+        return render(request, 'lists/home.html', {'form': form})
 
 
 def view_list(request, list_id):
@@ -42,18 +37,18 @@ def view_list(request, list_id):
     :param list_id: ID of list to view.
     """
     list_ = List.objects.get(id=list_id)
+    form = ItemForm()
+    
     context = {'list': list_}
 
     if request.method == 'POST':
-        item = Item(text=request.POST['text'], list=list_)
+        form = ItemForm(data=request.POST)
     
-        try:
-            item.full_clean()
-        except ValidationError:
-            context['error'] = "You can't have an empty list item"
-        else:
-            item.save()
-
+        if form.is_valid():
+            Item.objects.create(text=request.POST['text'], list=list_)
+            
             return redirect(list_)
 
+    context['form'] = form
+    
     return render(request, 'lists/list.html', context)
