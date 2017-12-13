@@ -11,7 +11,14 @@ E_ITEM_2 = 'Make salmon dinner'
 
 
 class ItemValidationTest(FunctionalTest):
-    
+
+    def get_error_element(self):
+        """
+        Finds the element that has the error class on it
+        :return: element with error class
+        """
+        return self.browser.find_element_by_css_selector('.has-error')
+
     def test_cannot_add_empty_list_items(self):
         # Emily goes to the home page and accidentally tries to submit an empty list item. She hits enter on the empty
         # input box.
@@ -63,6 +70,29 @@ class ItemValidationTest(FunctionalTest):
 
         # She sees a helpful error message
         self.wait_for(lambda: self.assertEqual(
-            self.browser.find_element_by_css_selector('.has-error').text,
+            self.get_error_element().text,
             "You've already got this in your list"
+        ))
+
+    def test_error_messages_are_cleared_on_input(self):
+        # Emily starts a list and causes a validation error:
+        self.browser.get(self.live_server_url)
+
+        self.enter_input(E_ITEM_1)
+
+        self.wait_for_row_in_list_table(f'1: {E_ITEM_1}')
+
+        self.enter_input(E_ITEM_1)
+
+        self.wait_for(lambda: self.assertTrue(
+            self.get_error_element().is_displayed()
+        ))
+
+        # She starts typing in the input box to clear the error
+        self.set_inputbox()
+        self.inputbox.send_keys(E_ITEM_2)
+
+        # She is pleased to see that the error message disappears
+        self.wait_for(lambda: self.assertFalse(
+            self.get_error_element().is_displayed()
         ))
