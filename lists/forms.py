@@ -29,3 +29,13 @@ class ItemForm(forms.ModelForm):
         error_messages = {
             'text': {'required': EMPTY_ITEM_ERROR}
         }
+
+    def save(self, for_list, commit=True):
+        """
+        Override save method to pass in list
+        :param for_list: list to save item to
+        :param commit: commit save boolean.
+        """
+        self.instance.list = for_list
+    
+        return super().save(commit)

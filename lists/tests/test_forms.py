@@ -5,6 +5,7 @@ Tests for lists forms
 from django.test import TestCase
 
 from lists.forms import EMPTY_ITEM_ERROR, ItemForm
+from lists.models import Item, List
 
 
 class ItemFormTest(TestCase):
@@ -19,3 +20,13 @@ class ItemFormTest(TestCase):
         
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors['text'], [EMPTY_ITEM_ERROR])
+
+    def test_form_save_handles_saving_to_a_list(self):
+        text = 'do me'
+        list_ = List.objects.create()
+        form = ItemForm(data={'text': text})
+        new_item = form.save(for_list=list_)
+    
+        self.assertEqual(new_item, Item.objects.first())
+        self.assertEqual(new_item.text, text)
+        self.assertEqual(new_item.list, list_)
