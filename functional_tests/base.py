@@ -38,7 +38,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         """
         Gets inputbox. Seems almost pointless but useful to stop repeating name of input box.
         """
-        self.inputbox = self.browser.find_element_by_id('id_new_item')
+        self.inputbox = self.browser.find_element_by_id('id_text')
 
     def enter_input(self, text_to_input):
         """

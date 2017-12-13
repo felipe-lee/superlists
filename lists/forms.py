@@ -14,11 +14,6 @@ class ItemForm(forms.ModelForm):
     Form to handle adding items to lists
     """
     
-    # item_text = forms.CharField(widget=forms.TextInput(attrs={
-    #     'placeholder': 'Enter a to-do item',
-    #     'class': 'form-control input-lg'
-    # }))
-    
     class Meta:
         """
         Define what model info to use.

@@ -21,7 +21,7 @@ def new_list(request):
     View to create a new list and add the first item to the list.
     """
     list_ = List.objects.create()
-    item = Item(text=request.POST['item_text'], list=list_)
+    item = Item(text=request.POST['text'], list=list_)
     
     try:
         item.full_clean()
@@ -45,7 +45,7 @@ def view_list(request, list_id):
     context = {'list': list_}
 
     if request.method == 'POST':
-        item = Item(text=request.POST['item_text'], list=list_)
+        item = Item(text=request.POST['text'], list=list_)
     
         try:
             item.full_clean()
