@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse_lazy
 from django.utils.html import escape
 
-from lists.forms import EMPTY_ITEM_ERROR, ItemForm
+from lists.forms import DUPLICATE_ITEM_ERROR, EMPTY_ITEM_ERROR, ExistingListItemForm, ItemForm
 from lists.models import Item, List
 
 
@@ -147,8 +147,8 @@ class ListViewTest(TestCase):
 
     def test_for_invalid_input_passes_form_to_template(self):
         response = self.post_invalid_input()
-    
-        self.assertIsInstance(response.context['form'], ItemForm)
+
+        self.assertIsInstance(response.context['form'], ExistingListItemForm)
 
     def test_for_invalid_input_shows_error_on_page(self):
         response = self.post_invalid_input()
@@ -159,6 +159,27 @@ class ListViewTest(TestCase):
         list_ = List.objects.create()
     
         response = self.client.get(reverse_lazy('lists:view_list', kwargs={'list_id': list_.id}))
-    
-        self.assertIsInstance(response.context['form'], ItemForm)
+
+        self.assertIsInstance(response.context['form'], ExistingListItemForm)
         self.assertContains(response, 'name="text"')
+
+    def test_duplicate_item_validation_errors_end_up_on_lists_page(self):
+        text = 'textey'
+        list_1 = List.objects.create()
+        item_1 = Item.objects.create(list=list_1, text=text)
+    
+        response = self.client.post(reverse_lazy('lists:view_list', kwargs={'list_id': list_1.id}),
+                                    data={'text': text})
+    
+        expected_error = escape(DUPLICATE_ITEM_ERROR)
+    
+        self.assertContains(response, expected_error)
+        self.assertTemplateUsed(response, 'lists/list.html')
+        self.assertEqual(Item.objects.count(), 1)
+
+    def test_form_save(self):
+        list_ = List.objects.create()
+        form = ExistingListItemForm(for_list=list_, data={'text': 'hi'})
+        new_item = form.save()
+    
+        self.assertEqual(new_item, Item.objects.first())
