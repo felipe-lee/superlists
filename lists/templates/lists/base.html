@@ -17,10 +17,10 @@
         {% if user.is_authenticated %}
             <p>Logged in as {{ user.email }}</p>
             <p>
-                <a id="id_logout" href="{% url 'logout' %}">Log out</a>
+                <a id="id_logout" href="{% url 'accounts:logout' %}">Log out</a>
             </p>
         {% else %}
-            <form method="post" action="{% url 'send_login_email' %}">
+            <form method="post" action="{% url 'accounts:send_login_email' %}">
                 {% csrf_token %}
                 <label>
                     Enter email to log in:
