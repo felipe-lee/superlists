@@ -16,7 +16,11 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'home' %}">Superlists</a>
             <form class="navbar-form navbar-right" method="post" action="#">
-
+                {% csrf_token %}
+                <label>
+                    Enter email to log in:
+                    <input class="form-control" name="email" type="text">
+                </label>
             </form>
         </div>
     </nav>
