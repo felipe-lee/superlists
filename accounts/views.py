@@ -2,7 +2,7 @@
 """
 Accounts app views
 """
-from django.contrib import messages
+from django.contrib import auth, messages
 from django.core.mail import send_mail
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -40,5 +40,9 @@ def login(request):
     """
     View to login users
     """
-    
+    user = auth.authenticate(uid=request.GET.get('token'))
+
+    if user:
+        auth.login(request, user)
+
     return redirect(reverse_lazy('home'))
