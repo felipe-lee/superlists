@@ -46,6 +46,12 @@ PROJECT_APPS = [
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
 
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'santiago.garcia.flg@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
