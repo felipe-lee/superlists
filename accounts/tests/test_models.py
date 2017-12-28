@@ -30,4 +30,4 @@ class TokenModelTest(TestCase):
         token1 = Token.objects.create(email=TEST_EMAIL)
         token2 = Token.objects.create(email=TEST_EMAIL)
 
-        self.assertNotEqual(token1, token2)
+        self.assertNotEqual(token1.uid, token2.uid)

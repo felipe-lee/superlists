@@ -65,7 +65,7 @@ class ItemModelsTest(TestCase):
         item_1 = Item.objects.create(list=list_1, text='i1')
         item_2 = Item.objects.create(list=list_1, text='item 2')
         item_3 = Item.objects.create(list=list_1, text='3')
-        print(f'count: {Item.objects.count()}')
+
         self.assertEqual(list(Item.objects.all()), [item_1, item_2, item_3])
     
     def test_string_representation(self):

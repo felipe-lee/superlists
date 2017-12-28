@@ -2,6 +2,8 @@
 """
 Models for accounts app
 """
+import uuid
+
 from django.db import models
 
 
@@ -15,4 +17,5 @@ class User(models.Model):
 
 
 class Token(models.Model):
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
+    uid = models.CharField(default=uuid.uuid4, max_length=40)
