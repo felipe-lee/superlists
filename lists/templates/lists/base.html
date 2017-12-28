@@ -15,7 +15,7 @@
     <nav class="navbar navbar-default" role="navigation">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'home' %}">Superlists</a>
-            <form class="navbar-form navbar-right" method="post" action="#">
+            <form class="navbar-form navbar-right" method="post" action="{% url 'accounts:send_login_email' %}">
                 {% csrf_token %}
                 <label>
                     Enter email to log in:
@@ -24,6 +24,23 @@
             </form>
         </div>
     </nav>
+
+    {% if messages %}
+        <div class="row">
+            <div class="col-md-8">
+                {% for message in messages %}
+                    <div class="alert
+                            {% if message.level_tag == 'success' %}
+                                alert-success
+                            {% else %}
+                                alert-warning
+                            {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
 
     <div class="row">
         <div class="col-md-6 col-md-offset-3 jumbotron">
