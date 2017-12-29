@@ -14,6 +14,31 @@ from functional_tests.helpers import get_webdriver
 MAX_TIME = 10
 
 
+def wait(fn):
+    """
+    Wraps input function in a function that waits for input function to be callable without an Exception
+    :param fn: function to attempt to call
+    :return: wrapped function
+    """
+    
+    def modified_fn(*args, **kwargs):
+        """
+        Handles wait functionality
+        """
+        start_time = time.time()
+        
+        while True:
+            try:
+                return fn(*args, **kwargs)
+            except (WebDriverException, AssertionError) as exc:
+                if time.time() - start_time > MAX_TIME:
+                    raise exc
+                
+                time.sleep(0.5)
+    
+    return modified_fn
+
+
 class FunctionalTest(StaticLiveServerTestCase):
     
     def setUp(self):
@@ -51,56 +76,45 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.inputbox.send_keys(Keys.ENTER)
 
     @staticmethod
+    @wait
     def wait_for(fn):
         """
         Waits for function to be callable without an Exception
         :param fn: function to attempt to call
-        :return:
+        :return: wrapped function
         """
-        start_time = time.time()
-    
-        while True:
-            try:
-                return fn()
-            except (WebDriverException, AssertionError) as exc:
-                if time.time() - start_time > MAX_TIME:
-                    raise exc
-            
-                time.sleep(0.5)
-    
+        return fn()
+
+    @wait
     def wait_for_row_in_list_table(self, row_text):
         """
         Waits for table to appear on page and checks if row_text is in any row.
         :param row_text: Text to search for in row
         """
 
-        def check_for_row():
-            """
-            Checks for text in rows
-            """
-            table = self.browser.find_element_by_id('id_list_table')
-            rows = table.find_elements_by_tag_name('tr')
-            self.assertIn(row_text, [row.text for row in rows])
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn(row_text, [row.text for row in rows])
 
-        self.wait_for(lambda: check_for_row())
-
+    @wait
     def wait_to_be_logged_in(self, email):
         """
         Waits for user to be logged in.
         :param email: user email
         """
-        self.wait_for(lambda: self.browser.find_element_by_link_text('Log out'))
+        self.browser.find_element_by_link_text('Log out')
     
         navbar = self.browser.find_element_by_css_selector('.navbar')
     
         self.assertIn(email, navbar.text)
 
+    @wait
     def wait_to_be_logged_out(self, email):
         """
         Wait for user to be logged out.
         :param email: user email
         """
-        self.wait_for(lambda: self.browser.find_element_by_name('email'))
+        self.browser.find_element_by_name('email')
     
         navbar = self.browser.find_element_by_css_selector('.navbar')
     
