@@ -83,3 +83,25 @@ class FunctionalTest(StaticLiveServerTestCase):
             self.assertIn(row_text, [row.text for row in rows])
 
         self.wait_for(lambda: check_for_row())
+
+    def wait_to_be_logged_in(self, email):
+        """
+        Waits for user to be logged in.
+        :param email: user email
+        """
+        self.wait_for(lambda: self.browser.find_element_by_link_text('Log out'))
+    
+        navbar = self.browser.find_element_by_css_selector('.navbar')
+    
+        self.assertIn(email, navbar.text)
+
+    def wait_to_be_logged_out(self, email):
+        """
+        Wait for user to be logged out.
+        :param email: user email
+        """
+        self.wait_for(lambda: self.browser.find_element_by_name('email'))
+    
+        navbar = self.browser.find_element_by_css_selector('.navbar')
+    
+        self.assertNotIn(email, navbar.text)
