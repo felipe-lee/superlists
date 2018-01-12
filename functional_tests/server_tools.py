@@ -2,8 +2,10 @@
 """
 Tools to run on server
 """
-from fabric.api import run
-from fabric.context_managers import settings
+from fabric.api import env, run
+
+env.use_ssh_config = True
+env.hosts = ['google-superlists-elspeth']
 
 
 def _get_manage_dot_py(host):
@@ -21,9 +23,8 @@ def reset_database(host):
     :param host: site name
     """
     manage_dot_py = _get_manage_dot_py(host)
-    
-    with settings(use_ssh_config=True, hosts=['google-superlists-elspeth']):
-        run(f'{manage_dot_py} flush --noinput')
+
+    run(f'{manage_dot_py} flush --noinput')
 
 
 def create_session_on_server(host, email):
@@ -34,8 +35,7 @@ def create_session_on_server(host, email):
     :return: session key
     """
     manage_dot_py = _get_manage_dot_py(host)
-    
-    with settings(use_ssh_config=True, hosts=['google-superlists-elspeth']):
-        session_key = run(f'{manage_dot_py} create_session {email}')
-        
-        return session_key.strip()
+
+    session_key = run(f'{manage_dot_py} create_session {email}')
+
+    return session_key.strip()
