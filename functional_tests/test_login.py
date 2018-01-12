@@ -4,12 +4,11 @@ Test user login
 """
 import re
 
-from django.core import mail
 from selenium.webdriver.common.keys import Keys
 
 from .base import FunctionalTest
 
-TEST_EMAIL = 'emily@knightsofhaven.net'
+TEST_EMAIL = 'santiago.garcia.flg@gmail.com'
 SUBJECT = 'Your login link for Superlists'
 
 
@@ -30,17 +29,15 @@ class LoginTest(FunctionalTest):
         ))
 
         # She checks her email and finds a message
-        email = mail.outbox[0]
-        self.assertIn(TEST_EMAIL, email.to)
-        self.assertEqual(SUBJECT, email.subject)
+        body = self.wait_for_email(TEST_EMAIL, SUBJECT)
 
         # It has a url link in it
-        self.assertIn('Use this link to log in', email.body)
+        self.assertIn('Use this link to log in', body)
 
-        url_search = re.search(r'http://.+/.+$', email.body)
+        url_search = re.search(r'http://.+/.+$', body)
 
         if not url_search:
-            self.fail(f'Could not find url in email body:\n{email.body}')
+            self.fail(f'Could not find url in email body:\n{body}')
 
         url = url_search.group(0)
 

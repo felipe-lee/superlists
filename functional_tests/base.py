@@ -3,9 +3,11 @@
 Base Functional Test
 """
 import os
+import poplib
 import time
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core import mail
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
 
@@ -47,10 +49,10 @@ class FunctionalTest(StaticLiveServerTestCase):
         """
         self.browser = get_webdriver()
 
-        staging_server = os.environ.get('STAGING_SERVER')
+        self.staging_server = os.environ.get('STAGING_SERVER')
 
-        if staging_server:
-            self.live_server_url = f'http://{staging_server}'
+        if self.staging_server:
+            self.live_server_url = f'http://{self.staging_server}'
     
     def tearDown(self):
         """
@@ -119,3 +121,56 @@ class FunctionalTest(StaticLiveServerTestCase):
         navbar = self.browser.find_element_by_css_selector('.navbar')
     
         self.assertNotIn(email, navbar.text)
+
+    def wait_for_email(self, test_email, subject):
+        """
+        Wait for email with specified subject.
+        :param test_email: email address that email was sent to
+        :param subject: subject of email to look for
+        :return: body of message
+        """
+        if not self.staging_server:
+            email = mail.outbox[0]
+        
+            self.assertIn(test_email, email.to)
+            self.assertEqual(subject, email.subject)
+        
+            return email.body
+    
+        email_id = None
+        start = time.time()
+        inbox = poplib.POP3_SSL('pop.gmail.com', 995)
+        body = ''
+    
+        inbox.user(test_email)
+        inbox.pass_(os.environ['EMAIL_PASSWORD'])
+    
+        while time.time() - start < 60:
+            # get 10 newest_messages
+            count, _ = inbox.stat()
+            for i in reversed(range(max(1, count - 10), count + 1)):
+                print(f'Getting message {i}')
+            
+                _, lines, __ = inbox.retr(i)
+            
+                lines = [l.decode('utf8') for l in lines]
+            
+                print(lines)
+            
+                if f'Subject: {subject}' in lines:
+                    email_id = i
+                    body = '\n'.join(lines)
+                
+                    break
+        
+            if body:
+                break
+        
+            time.sleep(5)
+    
+        if email_id:
+            inbox.dele(email_id)
+    
+        inbox.quit()
+    
+        return body
