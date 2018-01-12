@@ -1,6 +1,11 @@
 # Provisioning a new site
 =========================
 
+## Steps
+Within the vm, run this:
+* `cd <top level superlists>/deploy_tools`
+* `fab deploy`
+
 ## Required packages
 
 * nginx
@@ -29,6 +34,7 @@ sudo add-apt-repository ppa:fkrull/deadsnakes
 
 * see gunicorn-systemd.template.service
 * replace SITENAME with, e.g., staging.my-domain.com
+* replace EMAILPASSWORD with the email host password
 * place in /etc/systemd/system/gunicorn-<SITENAME>.service
 * run `sudo systemctl daemon-reload`
 * run `sudo systemctl enable gunicorn-<SITENAME>`

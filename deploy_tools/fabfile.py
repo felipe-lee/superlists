@@ -12,10 +12,11 @@ env.hosts = ['google-superlists-elspeth']
 REPO_URL = 'bb:felipe_lee/superlists.git'
 
 
-def deploy(production='False'):
+def deploy(production='False', email_password=''):
     """
     Run deployment provisioning commands.
     :param production: Running for production?
+    :param email_password: Password for email host. Only needed if provisioning for first time.
     """
     if production == 'True':
         SITENAME = 'superlists.knightsofhaven.net'
@@ -33,7 +34,29 @@ def deploy(production='False'):
         _update_static_files()
         _update_database()
 
-    run(f'sudo systemctl restart gunicorn-{SITENAME}')
+        first_time_provisioning = False
+        if not exists(f'/etc/nginx/sites-available/{SITENAME}'):
+            if not email_password:
+                raise NotImplementedError('You need to pass in an email password in order to provision the server')
+    
+            first_time_provisioning = True
+    
+            run(f'sed "s/SITENAME/{SITENAME}/g; s/EMAILPASSWORD/{email_password}/g" '
+                f'./deploy_tools/nginx.template.conf | sudo tee /etc/nginx/sites-available/{SITENAME}')
+    
+            run(f'sudo ln -s /etc/nginx/sites-available/{SITENAME} /etc/nginx/sites-enabled/{SITENAME}')
+    
+            run(f'sed "s/SITENAME/{SITENAME}/g" ./deploy_tools/gunicorn-systemd.template.service | '
+                f'sudo tee /etc/systemd/system/gunicorn-{SITENAME}')
+
+        run('sudo systemctl daemon-reload')
+
+        if first_time_provisioning:
+            run('sudo systemctl reload nginx')
+            run(f'sudo systemctl enable gunicorn-{SITENAME}')
+            run(f'sudo systemctl start gunicorn-{SITENAME}')
+        else:
+            run(f'sudo systemctl restart gunicorn-{SITENAME}')
 
 
 def _get_latest_source():
