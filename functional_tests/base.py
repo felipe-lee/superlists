@@ -11,7 +11,8 @@ from django.core import mail
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
 
-from functional_tests.helpers import get_webdriver
+from .helpers import get_webdriver
+from .server_tools import reset_database
 
 MAX_TIME = 10
 
@@ -53,6 +54,8 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         if self.staging_server:
             self.live_server_url = f'http://{self.staging_server}'
+
+            reset_database(self.staging_server)
     
     def tearDown(self):
         """

@@ -41,6 +41,7 @@ DJANGO_APPS = [
 PROJECT_APPS = [
     'accounts.apps.AccountsConfig',
     'common.apps.CommonConfig',
+    'functional_tests.apps.FunctionalTestsConfig',
     'lists.apps.ListsConfig',
 ]
 

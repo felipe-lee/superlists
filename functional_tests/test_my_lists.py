@@ -3,10 +3,11 @@
 FTs for user lists
 """
 from django.conf import settings
-from django.contrib.auth import BACKEND_SESSION_KEY, SESSION_KEY, get_user_model
-from django.contrib.sessions.backends.db import SessionStore
+from django.contrib.auth import get_user_model
 
 from .base import FunctionalTest
+from .management.commands.create_session import create_pre_authenticated_session
+from .server_tools import create_session_on_server
 
 User = get_user_model()
 TEST_EMAIL = 'emily@knightsofhaven.net'
@@ -18,20 +19,17 @@ class MyListsTest(FunctionalTest):
         """
         Creates session to avoid having to do this for every FT
         """
-        user = User.objects.create(email=email)
-        
-        session = SessionStore()
-        
-        session[SESSION_KEY] = user.pk
-        session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
-        session.save()
+        if self.staging_server:
+            session_key = create_session_on_server(self.staging_server, email)
+        else:
+            session_key = create_pre_authenticated_session(email)
         
         # # to set a cookie we need to first visit the domain. 404 pages load teh quickest!
         self.browser.get(f'{self.live_server_url}/404/')
         
         self.browser.add_cookie(dict(
             name=settings.SESSION_COOKIE_NAME,
-            value=session.session_key,
+            value=session_key,
             path='/',
         ))
     
