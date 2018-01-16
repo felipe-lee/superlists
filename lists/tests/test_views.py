@@ -2,6 +2,8 @@
 """
 Base tests for lists app
 """
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.urls import reverse_lazy
 from django.utils.html import escape
@@ -64,16 +66,29 @@ class NewListTest(TestCase):
         self.assertEqual(List.objects.count(), 0)
         self.assertEqual(Item.objects.count(), 0)
 
-    def test_list_owner_is_saved_if_user_is_authenticated(self):
+    @patch('lists.views.List')
+    @patch('lists.views.ItemForm')
+    def test_list_owner_is_saved_if_user_is_authenticated(self, mockItemFormClass, mockListClass):
         user = User.objects.create(email='a@b.com')
     
         self.client.force_login(user)
-    
+
+        mock_list = mockListClass.return_value
+
+        def check_owner_assigned():
+            """
+            Asserts that the list owner matches the expected user
+            """
+            self.assertEqual(mock_list.owner, user)
+
+        mock_list.save.side_effect = check_owner_assigned
+
+        # Need this to allow url resolution of model instance
+        mockListClass.return_value.get_absolute_url.return_value = '/lists/1/'
+        
         self.client.post(reverse_lazy('lists:new_list'), data={'text': 'new item'})
-    
-        list_ = List.objects.first()
-    
-        self.assertEqual(user, list_.owner)
+
+        mock_list.save.assert_called_once_with()
 
 
 class ListViewTest(TestCase):
