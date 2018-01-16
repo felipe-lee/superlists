@@ -15,7 +15,7 @@ def _get_manage_dot_py(host):
     :param host: host to find the manage.py file for
     :return: string with paths
     """
-    return f'~/sites/{host}/virtualenv/bin/python ~/sites/{host}/source/manage.py'
+    return f'~/sites/{host}/virtualenv/bin/python ~/sites/{host}/manage.py'
 
 
 def reset_database(host):
