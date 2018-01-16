@@ -3,9 +3,10 @@
 Tools to run on server
 """
 from fabric.api import env, run
+from fabric.tasks import execute
 
 env.use_ssh_config = True
-env.host_string = 'google-superlists-elspeth'
+env.hosts = ['google-superlists-elspeth']
 
 
 def _get_manage_dot_py(host):
@@ -24,7 +25,7 @@ def reset_database(host):
     """
     manage_dot_py = _get_manage_dot_py(host)
 
-    run(f'{manage_dot_py} flush --noinput')
+    execute(lambda: run(f'{manage_dot_py} flush --noinput'))
 
 
 def create_session_on_server(host, email):
@@ -36,6 +37,8 @@ def create_session_on_server(host, email):
     """
     manage_dot_py = _get_manage_dot_py(host)
 
-    session_key = run(f'{manage_dot_py} create_session {email}')
+    task_info = execute(lambda: run(f'{manage_dot_py} create_session {email}'))
 
+    session_key = task_info.get(f'{env.hosts[0]}')
+    
     return session_key.strip()
