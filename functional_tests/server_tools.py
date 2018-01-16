@@ -36,7 +36,7 @@ def create_session_on_server(host, email):
     manage_dot_py = _get_manage_dot_py(host)
 
     task_info = execute(create_session, manage_dot_py=manage_dot_py, email=email)
-    print(f'task info: {task_info}')
+
     session_key = task_info.get(f'{GOOGLE_ELSPETH}')
     
     return session_key.strip()
