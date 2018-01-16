@@ -5,7 +5,7 @@ Tools to run on server
 from fabric.api import env, run
 
 env.use_ssh_config = True
-env.hosts = ['google-superlists-elspeth']
+env.host_string = 'google-superlists-elspeth'
 
 
 def _get_manage_dot_py(host):
