@@ -101,3 +101,11 @@ def _update_static_files():
 
 def _update_database():
     run('./virtualenv/bin/python manage.py migrate --noinput')
+
+
+def flush_database(manage_dot_py):
+    """
+    Flushes server database to start fresh (note, this does not drop tables).
+    :param manage_dot_py: path to correct python exec and manage.py
+    """
+    run(f'{manage_dot_py} flush --noinput')

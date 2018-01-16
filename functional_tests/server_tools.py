@@ -5,6 +5,8 @@ Tools to run on server
 from fabric.api import env, run
 from fabric.tasks import execute
 
+from deploy_tools.fabfile import flush_database
+
 env.use_ssh_config = True
 env.hosts = ['google-superlists-elspeth']
 
@@ -25,7 +27,7 @@ def reset_database(host):
     """
     manage_dot_py = _get_manage_dot_py(host)
 
-    execute(lambda: run(f'{manage_dot_py} flush --noinput'), use_ssh_config=True)
+    execute(flush_database, manage_dot_py=manage_dot_py)
 
 
 def create_session_on_server(host, email):
