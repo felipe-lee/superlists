@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.urls import reverse_lazy
 from django.utils.html import escape
 
+from accounts.models import User
 from lists.forms import DUPLICATE_ITEM_ERROR, EMPTY_ITEM_ERROR, ExistingListItemForm, ItemForm
 from lists.models import Item, List
 
@@ -62,6 +63,17 @@ class NewListTest(TestCase):
     
         self.assertEqual(List.objects.count(), 0)
         self.assertEqual(Item.objects.count(), 0)
+
+    def test_list_owner_is_saved_if_user_is_authenticated(self):
+        user = User.objects.create(email='a@b.com')
+    
+        self.client.force_login(user)
+    
+        self.client.post(reverse_lazy('lists:new_list'), data={'text': 'new item'})
+    
+        list_ = List.objects.first()
+    
+        self.assertEqual(user, list_.owner)
 
 
 class ListViewTest(TestCase):
@@ -188,6 +200,21 @@ class ListViewTest(TestCase):
 class MyListsTest(TestCase):
     
     def test_my_lists_url_renders_my_list_template(self):
-        response = self.client.get(reverse_lazy('lists:my_lists', kwargs={'user_email': 'a@b.com'}))
+        user_email = 'a@b.com'
+    
+        User.objects.create(email=user_email)
+    
+        response = self.client.get(reverse_lazy('lists:my_lists', kwargs={'user_email': user_email}))
         
         self.assertTemplateUsed(response, 'lists/my_lists.html')
+
+    def test_passes_correct_owner_to_template(self):
+        User.objects.create(email='wrong@owner.com')
+    
+        correct_user_email = 'a@b.com'
+    
+        correct_user = User.objects.create(email=correct_user_email)
+    
+        response = self.client.get(reverse_lazy('lists:my_lists', kwargs={'user_email': correct_user_email}))
+    
+        self.assertEqual(correct_user, response.context['owner'])

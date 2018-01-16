@@ -4,6 +4,7 @@ Lists views
 """
 from django.shortcuts import redirect, render
 
+from accounts.models import User
 from lists.forms import ExistingListItemForm, ItemForm
 from lists.models import List
 
@@ -22,7 +23,7 @@ def new_list(request):
     form = ItemForm(data=request.POST)
 
     if form.is_valid():
-        list_ = List.objects.create()
+        list_ = List.objects.create(owner=request.user)
 
         form.save(for_list=list_)
     
@@ -34,6 +35,7 @@ def new_list(request):
 def view_list(request, list_id):
     """
     View to see a single list
+    :param request: request
     :param list_id: ID of list to view.
     """
     list_ = List.objects.get(id=list_id)
@@ -55,4 +57,11 @@ def view_list(request, list_id):
 
 
 def my_lists(request, user_email):
-    return render(request, 'lists/my_lists.html')
+    """
+    View to see a user's lists
+    :param request: request
+    :param user_email: email of user whose lists should be shown.
+    """
+    owner = User.objects.get(email=user_email)
+    
+    return render(request, 'lists/my_lists.html', {'owner': owner})
