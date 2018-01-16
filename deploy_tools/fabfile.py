@@ -109,3 +109,13 @@ def flush_database(manage_dot_py):
     :param manage_dot_py: path to correct python exec and manage.py
     """
     run(f'{manage_dot_py} flush --noinput')
+
+
+def create_session(manage_dot_py, email):
+    """
+    Creates a session on the server to mimic user having logged in previously.
+    :param manage_dot_py: path to correct python exec and manage.py
+    :param email: email of user to log in
+    :return: session key
+    """
+    run(f'{manage_dot_py} create_session {email}')
