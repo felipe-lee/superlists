@@ -31,16 +31,6 @@ class ItemForm(forms.ModelForm):
             'text': {'required': EMPTY_ITEM_ERROR}
         }
 
-    def save(self, for_list, commit=True):
-        """
-        Override save method to pass in list
-        :param for_list: list to save item to
-        :param commit: commit save boolean.
-        """
-        self.instance.list = for_list
-    
-        return super().save(commit)
-
 
 class NewListForm(ItemForm):
     
@@ -75,10 +65,3 @@ class ExistingListItemForm(ItemForm):
             e.error_dict = {'text': [DUPLICATE_ITEM_ERROR]}
             
             self._update_errors(e)
-
-    def save(self, commit=True):
-        """
-        Skip ItemForm save since we don't need to call that anymore as we've already set the instance list attr
-        :param commit: commit save boolean
-        """
-        return forms.ModelForm.save(self, commit)
