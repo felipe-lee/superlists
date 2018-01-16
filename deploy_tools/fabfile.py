@@ -119,4 +119,4 @@ def create_session(manage_dot_py, email):
     :param email: email of user to log in
     :return: session key
     """
-    run(f'{manage_dot_py} create_session {email}')
+    return run(f'{manage_dot_py} create_session {email}')
