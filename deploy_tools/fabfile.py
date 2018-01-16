@@ -7,8 +7,9 @@ import random
 from fabric.api import cd, env, local, run
 from fabric.contrib.files import append, exists, sed
 
+GOOGLE_ELSPETH = 'google-superlists-elspeth'
 env.use_ssh_config = True
-env.hosts = ['google-superlists-elspeth']
+env.hosts = [GOOGLE_ELSPETH]
 REPO_URL = 'bb:felipe_lee/superlists.git'
 
 

@@ -2,10 +2,9 @@
 """
 Tools to run on server
 """
-from fabric.api import env
 from fabric.tasks import execute
 
-from deploy_tools.fabfile import create_session, flush_database
+from deploy_tools.fabfile import GOOGLE_ELSPETH, create_session, flush_database
 
 
 def _get_manage_dot_py(host):
@@ -38,6 +37,6 @@ def create_session_on_server(host, email):
 
     task_info = execute(create_session, manage_dot_py=manage_dot_py, email=email)
 
-    session_key = task_info.get(f'{env.hosts[0]}')
+    session_key = task_info.get(f'{GOOGLE_ELSPETH}')
     
     return session_key.strip()
