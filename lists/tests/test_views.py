@@ -183,3 +183,11 @@ class ListViewTest(TestCase):
         new_item = form.save()
     
         self.assertEqual(new_item, Item.objects.first())
+
+
+class MyListsTest(TestCase):
+    
+    def test_my_lists_url_renders_my_list_template(self):
+        response = self.client.get(reverse_lazy('lists:my_lists', kwargs={'user_email': 'a@b.com'}))
+        
+        self.assertTemplateUsed(response, 'lists/my_lists.html')
