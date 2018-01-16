@@ -51,15 +51,13 @@ class NewVisitorTest(FunctionalTest):
         # Emily starts a new to-do list
         self.browser.get(self.live_server_url)
 
-        self.enter_input(E_ITEM_1)
-    
-        self.wait_for_row_in_list_table(f'1: {E_ITEM_1}')
+        self.add_list_item(E_ITEM_1)
     
         # She notices that her list has a unique URL.
         emily_list_url = self.browser.current_url
         self.assertRegex(emily_list_url, '/lists/.+')
-    
-        # Now a new user, Felipe, comes along to teh site.
+
+        # Now a new user, Felipe, comes along to the site.
     
         # # We use a new browser session to make sure that no information of Emily's is coming through from cookies,
         self.browser.refresh()
@@ -76,9 +74,7 @@ class NewVisitorTest(FunctionalTest):
         self.assertNotIn(E_ITEM_2, page_text)
     
         # Felipe starts a new list by entering a new item. He is into techy stuff...
-        self.enter_input(F_ITEM_1)
-    
-        self.wait_for_row_in_list_table(f'1: {F_ITEM_1}')
+        self.add_list_item(F_ITEM_1)
     
         # Felipe gets his own unique URL
         felipe_list_url = self.browser.current_url

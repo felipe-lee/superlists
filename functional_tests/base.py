@@ -80,6 +80,19 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.inputbox.send_keys(text_to_input)
         self.inputbox.send_keys(Keys.ENTER)
 
+    def add_list_item(self, item_text):
+        """
+        Adds an item to a list.
+        :param item_text: Text to add as list item
+        """
+        num_rows = len(self.browser.find_elements_by_css_selector('#id_list_table tr'))
+    
+        self.enter_input(item_text)
+    
+        item_number = num_rows + 1
+    
+        self.wait_for_row_in_list_table(f'{item_number}: {item_text}')
+
     @staticmethod
     @wait
     def wait_for(fn):
