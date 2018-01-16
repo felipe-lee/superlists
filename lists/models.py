@@ -20,6 +20,10 @@ class List(models.Model):
         """
         return reverse_lazy('lists:view_list', kwargs={'list_id': self.id})
 
+    @property
+    def name(self):
+        return self.item_set.first().text
+
 
 class Item(models.Model):
     """

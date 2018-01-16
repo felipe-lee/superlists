@@ -4,6 +4,7 @@ FTs for user lists
 """
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from selenium.common.exceptions import NoSuchElementException
 
 from .base import FunctionalTest
 from .management.commands.create_session import create_pre_authenticated_session
@@ -86,5 +87,5 @@ class MyListsTest(FunctionalTest):
         self.browser.find_element_by_link_text('Log out').click()
 
         self.wait_for(
-            lambda: self.assertEqual([], self.browser.find_element_by_link_text('My lists'))
+            lambda: self.assertRaises(NoSuchElementException, self.browser.find_element_by_link_text, 'My lists')
         )
