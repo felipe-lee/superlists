@@ -10,6 +10,9 @@ Environment=EMAIL_PASSWORD=EMAILPASSWORD
 
 ExecStart=/home/elspeth/sites/SITENAME/virtualenv/bin/gunicorn \
     --bind unix:/tmp/SITENAME.socket \
+    --capture-output \
+    --access-logfile access.log \
+    --error-logfile error.log \
     superlists.wsgi:application
 
 [Install]
