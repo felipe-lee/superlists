@@ -24,7 +24,7 @@ def reset_database(host):
     :param host: site name
     """
     manage_dot_py = _get_manage_dot_py(host)
-
+    execute(lambda: run('ls'))
     execute(lambda: run(f'{manage_dot_py} flush --noinput'))
 
 
