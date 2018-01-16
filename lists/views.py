@@ -23,7 +23,12 @@ def new_list(request):
     form = ItemForm(data=request.POST)
 
     if form.is_valid():
-        list_ = List.objects.create(owner=request.user)
+        if request.user.is_authenticated:
+            list_kwargs = {'owner': request.user}
+        else:
+            list_kwargs = {}
+    
+        list_ = List.objects.create(**list_kwargs)
 
         form.save(for_list=list_)
     

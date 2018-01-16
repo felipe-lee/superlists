@@ -2,6 +2,7 @@
 """
 Lists models
 """
+from django.conf import settings
 from django.db import models
 from django.urls import reverse_lazy
 
@@ -10,6 +11,7 @@ class List(models.Model):
     """
     Model to keep track of lists
     """
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE)
     
     def get_absolute_url(self):
         """
