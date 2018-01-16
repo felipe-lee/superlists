@@ -2,11 +2,13 @@
 """
 Tests for lists models
 """
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from accounts.models import User
 from lists.models import Item, List
+
+User = get_user_model()
 
 
 class ListModelTest(TestCase):
@@ -15,25 +17,51 @@ class ListModelTest(TestCase):
         list_ = List.objects.create()
         self.assertEqual(list_.get_absolute_url(), f'/lists/{list_.id}/')
 
+    def test_create_new_creates_list_and_first_item(self):
+        new_item_text = 'new item text'
+    
+        List.create_new(first_item_text=new_item_text)
+    
+        new_item = Item.objects.first()
+    
+        self.assertEqual(new_item_text, new_item.text)
+    
+        new_list = List.objects.first()
+    
+        self.assertEqual(new_list, new_item.list)
+
     def test_lists_can_have_owners(self):
-        user = User.objects.create(email='a@b.com')
-    
-        list_ = List.objects.create(owner=user)
-    
-        self.assertIn(list_, user.list_set.all())
+        self.assertTrue(List(owner=User()))  # should not raise exception
 
     def test_list_owner_is_optional(self):
-        self.assertTrue(List.objects.create())  # should not raise exception
+        self.assertIsNone(List().full_clean())  # should not raise exception
+
+    def test_create_new_optionally_saves_owner(self):
+        user = User.objects.create()
+    
+        List.create_new(first_item_text='new item text', owner=user)
+    
+        new_list = List.objects.first()
+    
+        self.assertEqual(user, new_list.owner)
+
+    def test_create_new_returns_new_list_object(self):
+        returned = List.create_new(first_item_text='new item text')
+    
+        new_list = List.objects.first()
+    
+        self.assertEqual(returned, new_list)
 
     def test_list_name_is_first_item_text(self):
         list_ = List.objects.create()
     
-        item_text_1 = 'first item'
-        Item.objects.create(list=list_, text=item_text_1)
+        first_item_text = 'first item'
+    
+        Item.objects.create(list=list_, text=first_item_text)
         Item.objects.create(list=list_, text='second item')
     
-        self.assertEqual(item_text_1, list_.name)
-
+        self.assertEqual(first_item_text, list_.name)
+        
 
 class ItemModelsTest(TestCase):
     

@@ -20,6 +20,18 @@ class List(models.Model):
         """
         return reverse_lazy('lists:view_list', kwargs={'list_id': self.id})
 
+    @staticmethod
+    def create_new(first_item_text, owner=None):
+        """
+        Creates a new list and adds the first item. Also associates with owner if available.
+        :param first_item_text: Text for first item on list
+        """
+        list_ = List.objects.create(owner=owner)
+    
+        Item.objects.create(text=first_item_text, list=list_)
+    
+        return list_
+
     @property
     def name(self):
         return self.item_set.first().text

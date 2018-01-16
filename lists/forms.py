@@ -4,7 +4,7 @@ Forms for lists app
 """
 from django import forms
 
-from lists.models import Item
+from lists.models import Item, List
 
 EMPTY_ITEM_ERROR = "You can't have an empty list item"
 DUPLICATE_ITEM_ERROR = "You've already got this in your list"
@@ -40,6 +40,19 @@ class ItemForm(forms.ModelForm):
         self.instance.list = for_list
     
         return super().save(commit)
+
+
+class NewListForm(ItemForm):
+    
+    def save(self, owner):
+        list_kwargs = {
+            'first_item_text': self.cleaned_data['text'],
+        }
+        
+        if owner.is_authenticated:
+            list_kwargs['owner'] = owner
+        
+        return List.create_new(**list_kwargs)
 
 
 class ExistingListItemForm(ItemForm):
