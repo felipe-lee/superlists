@@ -149,3 +149,7 @@ venv.bak/
 /db.sqlite3
 /static
 /functional_tests/screendumps/
+common/__pycache__/
+lists/__pycache__/
+lists/migrations/__pycache__/
+superlists/__pycache__/
