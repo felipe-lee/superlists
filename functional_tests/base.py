@@ -5,6 +5,7 @@ Base Functional Test
 import os
 import poplib
 import time
+from datetime import datetime
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core import mail
@@ -15,6 +16,7 @@ from .helpers import get_webdriver
 from .server_tools import reset_database
 
 MAX_TIME = 10
+SCREEN_DUMP_LOCATION = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'screendumps')
 
 
 def wait(fn):
@@ -61,8 +63,57 @@ class FunctionalTest(StaticLiveServerTestCase):
         """
         Clean up after tests.
         """
+        if self._test_has_failed():
+            if not os.path.exists(SCREEN_DUMP_LOCATION):
+                os.makedirs(SCREEN_DUMP_LOCATION)
+
+            for ix, handle in enumerate(self.browser.window_handles):
+                self._windowid = ix
+                self.browser.switch_to_window(handle)
+                self.take_screenshot()
+                self.dump_html()
+
         self.browser.refresh()
         self.browser.quit()
+
+        super().tearDown()
+
+    def _test_has_failed(self):
+        """
+        Looks for errors in test
+        :return: True if any errors, else False
+        """
+        return any(error for (method, error) in self._outcome.errors)
+
+    def take_screenshot(self):
+        """
+        Takes a screenshot of the current tab
+        """
+        filename = f'{self._get_filename()}.png'
+
+        print(f'screenshotting to {filename}')
+
+        self.browser.get_screenshot_as_file(filename)
+
+    def dump_html(self):
+        """
+        Dump html of current tab
+        """
+        filename = f'{self._get_filename()}.html'
+
+        print(f'dumping page HTML to {filename}')
+
+        with open(filename, 'w') as f:
+            f.write(self.browser.page_source)
+
+    def _get_filename(self):
+        """
+        Generate a unique filename (probably).
+        """
+        timestamp = datetime.now().isoformat().replace(':', '.')[:19]
+
+        return f'{SCREEN_DUMP_LOCATION}/{self.__class__.__name__}.' \
+               f'{self._testMethodName}-window{self._windowid}-{timestamp}'
 
     def set_inputbox(self):
         """

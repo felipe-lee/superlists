@@ -148,3 +148,4 @@ venv.bak/
 .idea/
 /db.sqlite3
 /static
+/functional_tests/screendumps/
