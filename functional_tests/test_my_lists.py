@@ -2,13 +2,10 @@
 """
 FTs for user lists
 """
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from selenium.common.exceptions import NoSuchElementException
 
 from .base import FunctionalTest
-from .management.commands.create_session import create_pre_authenticated_session
-from .server_tools import create_session_on_server
 
 User = get_user_model()
 TEST_EMAIL = 'emily@knightsofhaven.net'
@@ -18,24 +15,6 @@ E_ITEM_3 = 'Click cows'
 
 
 class MyListsTest(FunctionalTest):
-    
-    def create_pre_authenticated_session(self, email):
-        """
-        Creates session to avoid having to do this for every FT
-        """
-        if self.staging_server:
-            session_key = create_session_on_server(self.staging_server, email)
-        else:
-            session_key = create_pre_authenticated_session(email)
-        
-        # # to set a cookie we need to first visit the domain. 404 pages load teh quickest!
-        self.browser.get(f'{self.live_server_url}/404/')
-        
-        self.browser.add_cookie(dict(
-            name=settings.SESSION_COOKIE_NAME,
-            value=session_key,
-            path='/',
-        ))
     
     def test_logged_in_users_lists_are_saved_as_my_lists(self):
         # Emily is a logged-in user

@@ -7,12 +7,15 @@ import poplib
 import time
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core import mail
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
 
 from .helpers import get_webdriver
+from .management.commands.create_session import create_pre_authenticated_session
+from .server_tools import create_session_on_server
 from .server_tools import reset_database
 
 MAX_TIME = 10
@@ -114,6 +117,24 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         return f'{SCREEN_DUMP_LOCATION}/{self.__class__.__name__}.' \
                f'{self._testMethodName}-window{self._windowid}-{timestamp}'
+
+    def create_pre_authenticated_session(self, email):
+        """
+        Creates session to avoid having to do this for every FT
+        """
+        if self.staging_server:
+            session_key = create_session_on_server(self.staging_server, email)
+        else:
+            session_key = create_pre_authenticated_session(email)
+
+        # # to set a cookie we need to first visit the domain. 404 pages load teh quickest!
+        self.browser.get(f'{self.live_server_url}/404/')
+
+        self.browser.add_cookie(dict(
+            name=settings.SESSION_COOKIE_NAME,
+            value=session_key,
+            path='/',
+        ))
 
     def set_inputbox(self):
         """
