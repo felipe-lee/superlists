@@ -2,6 +2,7 @@
 """
 FTs to test sharing lists
 """
+from functional_tests.list_page import ListPage
 from .base import FunctionalTest
 from .helpers import get_webdriver
 
@@ -44,11 +45,12 @@ class SharingTest(FunctionalTest):
 
         self.browser.get(self.live_server_url)
 
-        self.add_list_item('Get help')
+        list_page = ListPage(self).add_list_item('Get help')
 
         # She notices a "Share this list" option
-        share_box = self.browser.find_element_by_css_selector(
-            'input[name="sharee"]'
-        )
+        share_box = list_page.get_share_box()
 
         self.assertEqual(share_box.get_attribute('placeholder'), 'your-friend@knightsofhaven.net')
+
+        # She shares her list. The page updates to say that it's shared with Oniciferous
+        list_page.share_list_with(TEST_EMAIL_2)
