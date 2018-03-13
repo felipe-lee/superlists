@@ -46,19 +46,29 @@ class ListPage(object):
         """
         return self.test.browser.find_element_by_id('id_text')
 
+    def enter_list_item(self, item_text):
+        """
+        Enters an item to the list.
+        :param item_text: Text to enter as a list item.
+        :return: new item number
+        """
+        new_item_number = len(self.get_table_rows()) + 1
+
+        input_box = self.get_item_input_box()
+        input_box.send_keys(item_text)
+        input_box.send_keys(Keys.ENTER)
+
+        return new_item_number
+
     def add_list_item(self, item_text):
         """
         Adds an item to the list and tests that it is added correctly.
         :param item_text: Text to add as a list item.
         :return: self
         """
-        new_item_no = len(self.get_table_rows()) + 1
+        new_item_number = self.enter_list_item(item_text)
 
-        input_box = self.get_item_input_box()
-        input_box.send_keys(item_text)
-        input_box.send_keys(Keys.ENTER)
-
-        self.wait_for_row_in_list_table(item_text, new_item_no)
+        self.wait_for_row_in_list_table(item_text, new_item_number)
 
         return self
 
