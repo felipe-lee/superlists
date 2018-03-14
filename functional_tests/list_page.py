@@ -50,15 +50,14 @@ class ListPage(object):
         """
         Enters an item to the list.
         :param item_text: Text to enter as a list item.
-        :return: new item number
+        :return: self
         """
-        new_item_number = len(self.get_table_rows()) + 1
-
         input_box = self.get_item_input_box()
+
         input_box.send_keys(item_text)
         input_box.send_keys(Keys.ENTER)
 
-        return new_item_number
+        return self
 
     def add_list_item(self, item_text):
         """
@@ -66,7 +65,9 @@ class ListPage(object):
         :param item_text: Text to add as a list item.
         :return: self
         """
-        new_item_number = self.enter_list_item(item_text)
+        new_item_number = len(self.get_table_rows()) + 1
+
+        self.enter_list_item(item_text)
 
         self.wait_for_row_in_list_table(item_text, new_item_number)
 
