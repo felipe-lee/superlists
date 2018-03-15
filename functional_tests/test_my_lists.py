@@ -5,6 +5,7 @@ FTs for user lists
 from django.contrib.auth import get_user_model
 from selenium.common.exceptions import NoSuchElementException
 
+from functional_tests.list_page import ListPage
 from .base import FunctionalTest
 
 User = get_user_model()
@@ -23,8 +24,7 @@ class MyListsTest(FunctionalTest):
         # She goes to the home page and starts a list
         self.browser.get(self.live_server_url)
 
-        self.add_list_item(E_ITEM_1)
-        self.add_list_item(E_ITEM_2)
+        list_page = ListPage(self).add_list_item(E_ITEM_1).add_list_item(E_ITEM_2)
 
         first_list_url = self.browser.current_url
 
@@ -45,7 +45,7 @@ class MyListsTest(FunctionalTest):
         # She decides to start another list, just to see
         self.browser.get(self.live_server_url)
 
-        self.add_list_item(E_ITEM_3)
+        list_page.add_list_item(E_ITEM_3)
 
         second_list_url = self.browser.current_url
 
