@@ -4,8 +4,7 @@ Test user login
 """
 import re
 
-from selenium.webdriver.common.keys import Keys
-
+from functional_tests.list_page import ListPage
 from .base import FunctionalTest
 
 TEST_EMAIL = 'santiago.garcia.flg@gmail.com'
@@ -19,8 +18,8 @@ class LoginTest(FunctionalTest):
         # It's telling her to enter her email address, so she does.
         self.browser.get(self.live_server_url)
 
-        self.browser.find_element_by_name('email').send_keys(TEST_EMAIL)
-        self.browser.find_element_by_name('email').send_keys(Keys.ENTER)
+        list_page = ListPage(self)
+        list_page.enter_email(TEST_EMAIL)
 
         # A message appears telling her an email has been sent
         self.wait_for(lambda: self.assertIn(
@@ -47,10 +46,10 @@ class LoginTest(FunctionalTest):
         self.browser.get(url)
 
         # She is logged in!
-        self.wait_to_be_logged_in(email=TEST_EMAIL)
+        list_page.wait_to_be_logged_in(email=TEST_EMAIL)
         
         # Now she logs out
-        self.browser.find_element_by_link_text('Log out').click()
+        list_page.click_log_out_link()
 
         # She is logged out
-        self.wait_to_be_logged_out(email=TEST_EMAIL)
+        list_page.wait_to_be_logged_out(email=TEST_EMAIL)
