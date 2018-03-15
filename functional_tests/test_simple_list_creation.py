@@ -7,6 +7,7 @@ from selenium.webdriver.common.keys import Keys
 
 from functional_tests.base import FunctionalTest
 from functional_tests.helpers import get_webdriver
+from functional_tests.list_page import ListPage
 
 E_ITEM_1 = 'Buy cat toys'
 E_ITEM_2 = 'Surprise cats with toys'
@@ -26,21 +27,22 @@ class NewVisitorTest(FunctionalTest):
         self.assertIn('To-Do', header_text)
         
         # She is invited to enter a to-do item straight away
-        self.set_inputbox()
-        self.assertEqual(self.inputbox.get_attribute('placeholder'), 'Enter a to-do item')
+        list_page = ListPage(self)
+        input_box = list_page.get_item_input_box()
+        self.assertEqual(input_box.get_attribute('placeholder'), 'Enter a to-do item')
         
         # She types "Buy cat toys" into a text box (She has multiple cats that love to play)
-        self.inputbox.send_keys(E_ITEM_1)
+        input_box.send_keys(E_ITEM_1)
         
         # When she hits enter, the page updates, and now the page lists
         # "1: Buy cat toys" as an item in a to-do list
-        self.inputbox.send_keys(Keys.ENTER)
+        input_box.send_keys(Keys.ENTER)
 
         self.wait_for_row_in_list_table(f'1: {E_ITEM_1}')
         
         # There is still a text box inviting her to add another item. She enters "Surprise cats with toys"
-        self.enter_input(E_ITEM_2)
-        
+        list_page.enter_list_item(E_ITEM_2)
+
         # The page updates again, and now shows both items on her list
         self.wait_for_row_in_list_table(f'1: {E_ITEM_1}')
         self.wait_for_row_in_list_table(f'2: {E_ITEM_2}')
@@ -51,7 +53,7 @@ class NewVisitorTest(FunctionalTest):
         # Emily starts a new to-do list
         self.browser.get(self.live_server_url)
 
-        self.add_list_item(E_ITEM_1)
+        list_page = ListPage(self).add_list_item(E_ITEM_1)
     
         # She notices that her list has a unique URL.
         emily_list_url = self.browser.current_url
@@ -74,7 +76,7 @@ class NewVisitorTest(FunctionalTest):
         self.assertNotIn(E_ITEM_2, page_text)
     
         # Felipe starts a new list by entering a new item. He is into techy stuff...
-        self.add_list_item(F_ITEM_1)
+        list_page.add_list_item(F_ITEM_1)
     
         # Felipe gets his own unique URL
         felipe_list_url = self.browser.current_url
