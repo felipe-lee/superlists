@@ -11,7 +11,6 @@ from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core import mail
 from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.keys import Keys
 
 from .helpers import get_webdriver
 from .management.commands.create_session import create_pre_authenticated_session
@@ -136,35 +135,6 @@ class FunctionalTest(StaticLiveServerTestCase):
             path='/',
         ))
 
-    def set_inputbox(self):
-        """
-        Gets inputbox. Seems almost pointless but useful to stop repeating name of input box.
-        """
-        self.inputbox = self.browser.find_element_by_id('id_text')
-
-    def enter_input(self, text_to_input):
-        """
-        Shortcut to enter input in inputbox
-        :param text_to_input: Text to input in self.inputbox
-        """
-        self.set_inputbox()
-        
-        self.inputbox.send_keys(text_to_input)
-        self.inputbox.send_keys(Keys.ENTER)
-
-    def add_list_item(self, item_text):
-        """
-        Adds an item to a list.
-        :param item_text: Text to add as list item
-        """
-        num_rows = len(self.browser.find_elements_by_css_selector('#id_list_table tr'))
-    
-        self.enter_input(item_text)
-    
-        item_number = num_rows + 1
-    
-        self.wait_for_row_in_list_table(f'{item_number}: {item_text}')
-
     @staticmethod
     @wait
     def wait_for(fn):
@@ -185,30 +155,6 @@ class FunctionalTest(StaticLiveServerTestCase):
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertIn(row_text, [row.text for row in rows])
-
-    @wait
-    def wait_to_be_logged_in(self, email):
-        """
-        Waits for user to be logged in.
-        :param email: user email
-        """
-        self.browser.find_element_by_link_text('Log out')
-    
-        navbar = self.browser.find_element_by_css_selector('.navbar')
-    
-        self.assertIn(email, navbar.text)
-
-    @wait
-    def wait_to_be_logged_out(self, email):
-        """
-        Wait for user to be logged out.
-        :param email: user email
-        """
-        self.browser.find_element_by_name('email')
-    
-        navbar = self.browser.find_element_by_css_selector('.navbar')
-    
-        self.assertNotIn(email, navbar.text)
 
     def wait_for_email(self, test_email, subject):
         """
