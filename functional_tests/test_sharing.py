@@ -2,7 +2,7 @@
 """
 FTs to test sharing lists
 """
-from functional_tests.list_page import ListPage
+from functional_tests.pages.list_page import ListPage
 from functional_tests.pages.my_lists_page import MyListsPage
 from .base import FunctionalTest
 from .helpers import get_webdriver

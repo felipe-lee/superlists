@@ -5,7 +5,7 @@ FTs for user lists
 from django.contrib.auth import get_user_model
 from selenium.common.exceptions import NoSuchElementException
 
-from functional_tests.list_page import ListPage
+from functional_tests.pages.list_page import ListPage
 from .base import FunctionalTest
 
 User = get_user_model()

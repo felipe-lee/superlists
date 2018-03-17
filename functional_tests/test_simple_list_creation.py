@@ -7,7 +7,7 @@ from selenium.webdriver.common.keys import Keys
 
 from functional_tests.base import FunctionalTest
 from functional_tests.helpers import get_webdriver
-from functional_tests.list_page import ListPage
+from functional_tests.pages.list_page import ListPage
 
 E_ITEM_1 = 'Buy cat toys'
 E_ITEM_2 = 'Surprise cats with toys'

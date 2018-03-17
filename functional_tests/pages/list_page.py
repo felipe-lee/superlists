@@ -4,7 +4,7 @@ List page objects to help keep FTs cleaner
 """
 from selenium.webdriver.common.keys import Keys
 
-from .base import wait
+from functional_tests.base import wait
 
 
 class ListPage(object):

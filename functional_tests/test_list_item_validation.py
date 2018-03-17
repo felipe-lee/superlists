@@ -5,7 +5,7 @@ List item validation FTs
 from selenium.webdriver.common.keys import Keys
 
 from functional_tests.base import FunctionalTest
-from functional_tests.list_page import ListPage
+from functional_tests.pages.list_page import ListPage
 
 E_ITEM_1 = 'Buy salmon'
 E_ITEM_2 = 'Make salmon dinner'

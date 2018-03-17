@@ -4,7 +4,7 @@ Test user login
 """
 import re
 
-from functional_tests.list_page import ListPage
+from functional_tests.pages.list_page import ListPage
 from .base import FunctionalTest
 
 TEST_EMAIL = 'santiago.garcia.flg@gmail.com'
