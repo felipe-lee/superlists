@@ -3,11 +3,13 @@
 FTs to test sharing lists
 """
 from functional_tests.list_page import ListPage
+from functional_tests.pages.my_lists_page import MyListsPage
 from .base import FunctionalTest
 from .helpers import get_webdriver
 
 TEST_EMAIL_1 = 'emily@knightsofhaven.net'
 TEST_EMAIL_2 = 'oniciferous@knightsofhaven.net'
+TEST_ITEM = 'Hi Edith!'
 
 
 def quit_if_possible(browser):
@@ -54,3 +56,27 @@ class SharingTest(FunctionalTest):
 
         # She shares her list. The page updates to say that it's shared with Oniciferous
         list_page.share_list_with(TEST_EMAIL_2)
+
+        # Oniciferous now goes to the lists page with his browser
+        self.browser = oni_browser
+
+        MyListsPage(self).go_to_my_lists_page()
+
+        # He sees Edith's list in there!
+        self.browser.find_element_by_link_text('Get help').click()
+
+        # On the list page, Oniciferous can see it says that it's Edit's list
+        self.wait_for(lambda: self.assertEqual(
+            list_page.get_list_owner(),
+            TEST_EMAIL_1
+        ))
+
+        # He adds an item to the list
+        list_page.add_list_item(TEST_ITEM)
+
+        # When Edith refreshes the page, she sees Oniciferou's addition
+        self.browser = emily_browser
+
+        self.browser.refresh()
+
+        list_page.wait_for_row_in_list_table(TEST_ITEM, 2)
