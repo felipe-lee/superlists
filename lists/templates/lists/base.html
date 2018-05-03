@@ -69,6 +69,7 @@
                     <form method="post" action="{% block form_action %}{% endblock form_action %}">
                         {% csrf_token %}
 
+                        <label for="id_text" class="sr-only">Enter a to-do item</label>
                         {{ form.text }}
 
                         {% if form.errors %}
