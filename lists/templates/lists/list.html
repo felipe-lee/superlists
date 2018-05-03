@@ -9,6 +9,7 @@
 {% endblock form_action %}
 
 {% block table %}
+    <h2>This list belongs to <span id="id_list_owner">{{ list.owner.email }}</span></h2>
     <table id="id_list_table" class="table">
         {% for item in list.item_set.all %}
             <tr>
@@ -17,3 +18,27 @@
         {% endfor %}
     </table>
 {% endblock table %}
+
+{% block extra_content %}
+    <h2>Share this list with someone!</h2>
+
+    <form id="id-sharee-form" method="post" action="{% url 'lists:share_list' list_id=list.id %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id-sharee-email" class="sr-only">Email to share list with</label>
+            <input type="email" id="id-sharee-email" name="sharee" placeholder="your-friend@knightsofhaven.net"
+                   class="form-control">
+        </div>
+    </form>
+
+    <h2>People this list is shared with</h2>
+
+    <ul>
+        {% for user in list.shared_with.all %}
+            <li class="list-sharee">
+                {{ user.email }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock extra_content %}

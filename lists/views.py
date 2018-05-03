@@ -63,3 +63,23 @@ def my_lists(request, user_email):
     owner = User.objects.get(email=user_email)
     
     return render(request, 'lists/my_lists.html', {'owner': owner})
+
+
+def share_list(request, list_id):
+    """
+    View to share a list with an email.
+    :param WSGIRequest request: request
+    :param int list_id: id of list to share
+    :return HttpResponseRedirect: redirect to lists view
+    """
+    list_ = List.objects.get(id=list_id)
+    
+    if request.POST.get('sharee'):
+        try:
+            user_to_share_with = User.objects.get(email=request.POST['sharee'])
+        except User.DoesNotExist:
+            user_to_share_with = User.objects.create(email=request.POST['sharee'])
+        
+        list_.shared_with.add(user_to_share_with)
+    
+    return redirect(list_)

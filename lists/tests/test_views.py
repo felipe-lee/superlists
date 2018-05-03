@@ -263,3 +263,46 @@ class MyListsTest(TestCase):
         response = self.client.get(reverse_lazy('lists:my_lists', kwargs={'user_email': correct_user_email}))
     
         self.assertEqual(correct_user, response.context['owner'])
+
+
+class ShareListTest(TestCase):
+    
+    @classmethod
+    def setUpClass(cls):
+        """
+        Set up data for tests
+        """
+        super().setUpClass()
+        
+        cls.user = User.objects.create(email='a@b.com')
+        
+        cls.list_to_share = List.create_new('random item', owner=cls.user)
+        
+        cls.post_data = {'sharee': 'other@b.com'}
+    
+    def test_post_redirects_to_lists_page(self):
+        response = self.client.post(reverse_lazy('lists:share_list', kwargs={'list_id': self.list_to_share.id}),
+                                    data=self.post_data)
+        
+        self.assertEqual(reverse_lazy('lists:view_list', kwargs={'list_id': self.list_to_share.id}), response.url)
+    
+    def test_saves_sharee_email_to_shared_with_field(self):
+        self.client.post(reverse_lazy('lists:share_list', kwargs={'list_id': self.list_to_share.id}),
+                         data=self.post_data)
+        
+        user_shared_with = User.objects.get(email=self.post_data['sharee'])
+        
+        self.assertIn(user_shared_with, self.list_to_share.shared_with.all())
+    
+    def test_if_sharee_isnt_a_user_then_add_them_as_a_user(self):
+        try:
+            user_to_share_with = User.objects.get(email=self.post_data['sharee'])
+        except User.DoesNotExist:
+            pass
+        else:
+            user_to_share_with.delete()
+        
+        self.client.post(reverse_lazy('lists:share_list', kwargs={'list_id': self.list_to_share.id}),
+                         data=self.post_data)
+        
+        self.assertIn(self.post_data['sharee'], User.objects.values_list('email', flat=True))

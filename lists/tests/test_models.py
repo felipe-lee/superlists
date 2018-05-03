@@ -17,6 +17,24 @@ class ListModelTest(TestCase):
         list_ = List.objects.create()
         self.assertEqual(list_.get_absolute_url(), f'/lists/{list_.id}/')
 
+    def test_lists_can_have_owners(self):
+        self.assertTrue(List(owner=User()))  # should not raise exception
+
+    def test_list_owner_is_optional(self):
+        self.assertIsNone(List().full_clean())  # should not raise exception
+
+    def test_list_can_have_users_shared_with(self):
+        list_ = List.objects.create()
+    
+        self.assertTrue(hasattr(list_, 'shared_with'))
+        self.assertTrue(hasattr(list_.shared_with, 'add'))
+    
+        user = User.objects.create(email='a@b.com')
+    
+        list_.shared_with.add(user)
+    
+        self.assertIn(user, list_.shared_with.all())
+    
     def test_create_new_creates_list_and_first_item(self):
         new_item_text = 'new item text'
     
@@ -29,12 +47,6 @@ class ListModelTest(TestCase):
         new_list = List.objects.first()
     
         self.assertEqual(new_list, new_item.list)
-
-    def test_lists_can_have_owners(self):
-        self.assertTrue(List(owner=User()))  # should not raise exception
-
-    def test_list_owner_is_optional(self):
-        self.assertIsNone(List().full_clean())  # should not raise exception
 
     def test_create_new_optionally_saves_owner(self):
         user = User.objects.create()
