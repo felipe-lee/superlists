@@ -3,7 +3,7 @@
 Lists views
 """
 from django.shortcuts import redirect, render
-from django.views.generic import FormView
+from django.views.generic import CreateView, FormView
 
 from accounts.models import User
 from lists.forms import ExistingListItemForm, ItemForm, NewListForm
@@ -18,18 +18,22 @@ class HomePageView(FormView):
     form_class = ItemForm
 
 
-def new_list(request):
+class NewListView(CreateView):
     """
-    View to create a new list and add the first item to the list.
+    View to see a single list
     """
-    form = NewListForm(data=request.POST)
+    template_name = 'lists/home.html'
+    form_class = NewListForm
+
+    def form_valid(self, form):
+        """
+        Pass owner to form save.
+        :param form: validated form
+        :return: redirect
+        """
+        self.object = form.save(owner=self.request.user)
     
-    if form.is_valid():
-        list_ = form.save(owner=request.user)
-        
-        return redirect(list_)
-    
-    return render(request, 'lists/home.html', {'form': form})
+        return redirect(self.object)
 
 
 def view_list(request, list_id):
