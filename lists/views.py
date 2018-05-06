@@ -3,17 +3,19 @@
 Lists views
 """
 from django.shortcuts import redirect, render
+from django.views.generic import FormView
 
 from accounts.models import User
 from lists.forms import ExistingListItemForm, ItemForm, NewListForm
 from lists.models import List
 
 
-def home_page(request):
+class HomePageView(FormView):
     """
     Home page view
     """
-    return render(request, 'lists/home.html', {'form': ItemForm()})
+    template_name = 'lists/home.html'
+    form_class = ItemForm
 
 
 def new_list(request):

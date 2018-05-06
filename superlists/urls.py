@@ -20,7 +20,7 @@ from accounts import urls as accounts_urls
 from lists import urls as list_urls, views as lists_views
 
 urlpatterns = [
-    path('', lists_views.home_page, name='home'),
+    path('', lists_views.HomePageView.as_view(), name='home'),
     path('accounts/', include(accounts_urls)),
     path('lists/', include(list_urls)),
 ]
